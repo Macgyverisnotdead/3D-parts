@@ -1,0 +1,106 @@
+// Created by Tointy/MacGiverIsNotDead 
+//It's an HotEnd effector designed to work with Geomags puzzle magnets. 
+//It's mostly parametric and could be adapted to ball/magnet delta printer configurations.
+
+
+	Height = 8; // thickness of the plate
+	BallDistance = 28; // distance between two adjacent balls
+	MagneticWidth = 60; // distance between two ball center on same side
+	Delta = 0.01; // to avoid render artifacts 
+	
+	MagnetDiameter = 12.7; // diameter of the Geomag steel Balls
+	Barlenght = MagneticWidth +10 ; // 
+	MagnetCap = 17 ; // size of the Magnet ball holder diameter
+   
+	NutSlop = 0.8; // Size increase of the M3 nut, Printer dependant
+	Slop = 1.4; // Slop to increase the size of the magnet balls to have a good fit, printer dependant 
+	HoleSlop = 0.8; // same for holes
+
+	BigHoleDiam = 43 ; // center Hole of the effector
+	MountingHoleSpace = 25 ; // distance of the Hotend mounting holes from the center
+	MountingHoleSpace2 = 15; // distance between the side holes for fan/probe mounting 
+ 
+	MNut = 6.36 + NutSlop ; // M3 nut size calculations
+	MHole = 3 + HoleSlop;  // M3 hole size calculation
+	NutHeight = 2.5 ;  // M3 nut thickness
+	
+
+module solid()
+{
+//plater
+		for(ang = [0, 120, 240]) rotate([0, 0, ang]) 
+				{
+				translate([-Barlenght/2, -BallDistance, 0]) 
+				cube([Barlenght, 20 ,Height]);
+				translate([-Barlenght/2, -BallDistance, Height/2])
+				rotate ([0,90,0])
+				cylinder(h= Barlenght, d=Height);	
+				}
+//Spheres ball holder
+		for(ang = [0, 120, 240]) rotate([0, 0, ang])  
+				{
+			translate([-MagneticWidth/2, -BallDistance,Height/2+1])
+			sphere(d=MagnetCap);
+			translate([MagneticWidth/2, -BallDistance,Height/2+1]) 
+			sphere(d=MagnetCap);
+				}
+}
+
+module void()
+{
+
+
+//flattening base cylinder
+translate([0,0,-Delta])
+cylinder (d=BigHoleDiam, 20);
+translate([0,0,-Height])
+cylinder (d=150, h=Height);
+
+// Magnet ball sockets
+		for(ang = [0, 120, 240]) rotate([0, 0, ang])  
+				{
+			translate([-MagneticWidth/2, -BallDistance-2,Height/2+3])
+			sphere(d=MagnetDiameter+Slop);
+
+				}
+
+		for(ang = [0, 120, 240]) rotate([0, 0, ang])  
+				{
+			translate([MagneticWidth/2, -BallDistance-2,Height/2+3])
+			sphere(d=MagnetDiameter+Slop);
+				}
+// M3 nut mounts for Extruder
+for(ang = [0, 180, 120, 240, 300, 60]) rotate([0, 0, ang])  
+				{
+			translate([0,MountingHoleSpace,Height/2 + Delta])
+			cylinder ( h=Height, d=MHole, $fn = 12, center = true );
+			translate([0,MountingHoleSpace,NutHeight/2 - Delta])
+			cylinder ( h=NutHeight,d= MNut, $fn = 6 , center = true);
+
+// M3 nut mounts for Fans or Accessories :
+ 
+for(ang = [0, 180, 120, 240, 300, 60]) rotate([0, 0, ang])  
+				{
+			translate([MountingHoleSpace2,MountingHoleSpace,Height/2 +Delta ])
+			cylinder ( h=Height, d=MHole, $fn = 12, center = true );
+			
+			translate([MountingHoleSpace2,MountingHoleSpace,NutHeight/2 - Delta])
+			cylinder ( h=NutHeight,d= MNut, $fn = 6 , center = true);
+}
+}
+}
+
+module final()
+{
+difference ()
+{
+solid();
+void();
+}
+}
+
+final();
+		
+
+
+
